@@ -48,11 +48,9 @@
 !!!!
 !!!!***
 
-#include "Flash.h"
-#include "constants.h" 
 
 
-subroutine MagneticResistivity(temp,dens, magx, magy, magz, curx, cury, curz, vise, crze, xn, &
+subroutine MagneticResistivity(temp,dens, magx, magy, magz, vise, crze, &
                                eta_paral, eta_hall, eta_perp, sigma_paral, sigma_hall, sigma_perp)
 
   use MagneticResistivity_data
@@ -60,13 +58,10 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, curx, cury, curz, vi
  
   implicit none
   
-#include "Flash_mpi.h"
-
   !!-------------------------------------------------------!!
   !!      what I want to exit this piece of code. Either   !!
   !!            this is a matrix or a single number        !!
-  real, intent(IN) :: temp, dens, magx, magy, magz, curx, cury, curz, vise, crze
-  real, intent(IN), dimension(NSPECIES) :: xn              !!
+  real, intent(IN) :: temp, dens, magx, magy, magz, vise, crze
   real, intent(OUT):: eta_paral, eta_hall, eta_perp, sigma_paral, sigma_hall, sigma_perp
                                                            !!
   !!-------------------------------------------------------!!
@@ -111,9 +106,6 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, curx, cury, curz, vi
                                                            !!
   temperature_magres = temp                                !!
                                                            !!
-  Bx_magres = magx * SQRT(4*PI)                            !!
-  By_magres = magy * SQRT(4*PI)                            !!
-  Bz_magres = magz * SQRT(4*PI)                            !!
                                                            !!
   B_magres=sqrt(Bx_magres**2+By_magres**2+Bz_magres**2)    !!
        
