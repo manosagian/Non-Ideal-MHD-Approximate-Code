@@ -67,23 +67,10 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, vise, crze, &
   !!-------------------------------------------------------!!
 
   !!-------------------------------------------------------!!
-  !!   More parameters that I will definitely use and are  !!
-  !!                   defined here                        !!
-  integer :: nsp, nsp2, gnb, cnt, exitCounter              !!
-                                                           !!
-  real :: freeelectrons_magres, gdratio                    !!
-  real :: mcr_grains, ionsH, elecH                         !!
-  real :: etaPa, etaHa, etaPe                              !!      ** used for while loop **
-  real :: mcri, mcre, mcrg, G0, ass, rdm                   !!
-  real :: etaPaL, etaHaL, etaPeL, sigmaPaL, sigmaHaL, sigmaPeL  !  ** These are computed based on the Langevin approximation **
-                                                           !!          for the actual eta_paral, eta_hall, eta_perp and   
-  !!       Parameters coming elsewhere from the code       !!      corresponding sigmas drift velocities are taken into account
+  !!       Parameters coming elsewhere from the code       !!
   real :: rho_magres, temperature_magres                   !!
   real :: Bx_magres, By_magres, Bz_magres, B_magres        !!
   real :: Jx, Jy, Jz                                       !!
-  !!     Some more dummy parameters to define a grain      !!
-  !!            distribution for the grains                !!
-  real :: rhoG_tot, ng_tot, ng_loc, rad_loc, gmass_loc     !!
   !!    More parameters in case a simple resistivity       !!
   !!            calculation is requested                   !!
   real :: va, n_i_tot, numDens, rho_H2, res_constant!, f, g_H, g_He, g_HCO, g_H3O, k, l, m
@@ -115,12 +102,6 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, vise, crze, &
      
      
      call Driver_getComm(GLOBAL_COMM, av_meshComm)
-                                                                 !!
-     !n_i_tot = max(3.2e-3*numDens**(-0.5), 2.24e-03/((numDens/3.e+4)**(-0.45) * (1.+(numDens/3.e+4)**(-0.4)))) !LowAv
-     !n_i_tot = max(2.8e-3*numDens**(-0.5), 2.23e-03/((numDens/3.e+4)**(-0.5) * (1.+(numDens/3.e+4)**(-0.4)))) ! Fidu/MF/Delayed
-     !n_i_tot = max(1.93e-3*numDens**(-0.5), 1.53e-03/((numDens/3.e+4)**(-0.5) * (1.+(numDens/3.e+4)**(-0.4)))) !LowZ
-     !n_i_tot = max(6.02e-3*numDens**(-0.5), 2.87e-03/((numDens/3.e+4)**(-0.2) * (1.+(numDens/3.e+4)**(-0.48)))) ! HighZ
-                                                           !!
      
      if (saved_time .ne. dr_simTime) then
       saved_time=dr_simTime
@@ -142,25 +123,24 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, vise, crze, &
       temporary_logmean=0
       counter=0
      end if
-     
-     
-     Call InterpolateCONSTANTS(mass_dens_red, crze, vise, temperature_magres, numdens_0, alpha, beta, res_constant)
-     n_i_tot=rho_H2*alpha*(rho_H2/mass_dens_red)**beta
-     
-     
+
      if (rho_H2>temporary_max) then
       temporary_max=rho_H2
      end if
      counter=counter+1
      temporary_logmean=temporary_logmean * (counter - 1) / counter + log10(rho_H2) / counter 
-                                             
      
-     eta_perp = res_constant * va**2 / n_i_tot           !!
+     Call InterpolateCONSTANTS(mass_dens_red, crze, vise, temperature_magres, numdens_0, alpha, beta, res_constant)
+
+     n_i_tot=rho_H2*alpha*(rho_H2/mass_dens_red)**beta                                             
+     
+     eta_perp = res_constant * va**2 / n_i_tot           
                                                            
-     eta_paral = 2.74e6 * rho_H2 / n_i_tot
+     eta_paral = 1.78e6 * rho_H2 / n_i_tot
      
-     eta_hall = 0.0694 * B_magres / n_i_tot                                        !!
-     return                                                !!
+     eta_hall = 0.0694 * B_magres / n_i_tot    
+
+     return                                                
 
 
 subroutine InterpolateCONSTANTS(mass_dens_int, z, Av, T, numdens_0, alpha, beta, res_constant) 
@@ -324,19 +304,19 @@ return
 
 ELSE
 
-rho1=IntMassD(size-5)
+rho1=IntMassD(size-1)
 rho2=IntMassD(size)
 
-af(1)=A_Fid(size-5)
-bf(1)=B_Fid(size-5)
+af(1)=A_Fid(size-1)
+bf(1)=B_Fid(size-1)
 
 af(2)=A_Fid(size)
 bf(2)=B_Fid(size)
 
 If (z>=1.) then
  zx=2.
- az(1)=A_Highz(size-5)
- bz(1)=B_Highz(size-5)
+ az(1)=A_Highz(size-1)
+ bz(1)=B_Highz(size-1)
  
  az(2)=A_Highz(size)
  bz(2)=B_Highz(size)
@@ -344,8 +324,8 @@ If (z>=1.) then
  zConst=HighzConst
 Else
  zx=0.5
- az(1)=A_Lowz(size-5)
- bz(1)=B_Lowz(size-5)
+ az(1)=A_Lowz(size-1)
+ bz(1)=B_Lowz(size-1)
  
  az(2)=A_Lowz(size)
  bz(2)=B_Lowz(size)
@@ -356,8 +336,8 @@ End if
 
 If (Av>=5) then
  Ax=5.
- aA(1)=A_MediumAv(size-5)
- bA(1)=B_MediumAb(size-5)
+ aA(1)=A_MediumAv(size-1)
+ bA(1)=B_MediumAb(size-1)
   
  aA(2)=A_MediumAv(size)
  bA(2)=B_MediumAv(size)
@@ -366,8 +346,8 @@ If (Av>=5) then
  
 Else
  Ax=3.
- aA(1)=A_LowAv(size-5)
- bA(1)=B_LowAv(size-5)
+ aA(1)=A_LowAv(size-1)
+ bA(1)=B_LowAv(size-1)
   
  aA(2)=A_LowAv(size)
  bA(2)=B_LowAv(size)
@@ -379,8 +359,8 @@ End if
 If (T>=10) then
  Tx=15.
  DT=450.
- aT(1)=A_HighT(size-5)
- bT(1)=B_HighT(size-5)
+ aT(1)=A_HighT(size-1)
+ bT(1)=B_HighT(size-1)
 
  aT(2)=A_HighT(size)
  bT(2)=B_HighT(size)
@@ -389,8 +369,8 @@ If (T>=10) then
 Else
  Tx=6.
  DT=180.
- aT(1)=A_LowT(size-5)
- bT(1)=B_LowT(size-5)
+ aT(1)=A_LowT(size-1)
+ bT(1)=B_LowT(size-1)
 
  aT(2)=A_LowT(size)
  bT(2)=B_LowT(size)
@@ -400,8 +380,8 @@ End if
 
 
 Dx=750.
-aD(1)=A_HighDens(size-5)
-bD(1)=B_HighDens(size-5)
+aD(1)=A_HighDens(size-1)
+bD(1)=B_HighDens(size-1)
 
 aD(2)=A_HighDens(size)
 bD(2)=B_HighDens(size)
