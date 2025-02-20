@@ -70,10 +70,9 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, vise, crze, &
   !!       Parameters coming elsewhere from the code       !!
   real :: rho_magres, temperature_magres                   !!
   real :: Bx_magres, By_magres, Bz_magres, B_magres        !!
-  real :: Jx, Jy, Jz                                       !!
   !!    More parameters in case a simple resistivity       !!
   !!            calculation is requested                   !!
-  real :: va, n_i_tot, numDens, rho_H2, res_constant!, f, g_H, g_He, g_HCO, g_H3O, k, l, m
+  real :: va, n_i_tot, numDens, rho_H2, res_constant!
   integer :: av_iproc, av_err, av_meshComm, av_numProcs
   real :: gamma, consty, Av, zeta
   !!-------------------------------------------------------!!
@@ -300,7 +299,6 @@ beta=beta1*(rho_adj-rho1)/(rho2-rho1)+beta2*(rho2-rho_adj)/(rho2-rho1)
 res_constant=FidConst+(TConst-FidConst)*(T-10.)/(Tx-10.)+(AvConst-FidConst)*(Av-10.)/(Ax-10.)+(zConst-FidConst)*(z-1.)/(zx-1.) & 
 +(D750Const-FidConst)*(numdens_0-300.-(DT-300.)*(T-10.)/(Tx-10.))/(Dx-300.)
 
-return
 
 ELSE
 
@@ -424,7 +422,6 @@ res_constant=FidConst+(TConst-FidConst)*(T-10.)/(Tx-10.)+(AvConst-FidConst)*(Av-
 +(HighDensConst-FidConst)*(numdens_0-300.-(DT-300.)*(T-10.)/(Tx-10.))/(Dx-300.)
 
 
-return
-
 END IF
+return
 End subroutine InterpolateCONSTANTS
