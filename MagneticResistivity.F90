@@ -81,12 +81,6 @@ subroutine MagneticResistivity(temp,dens, magx, magy, magz, vise, crze, &
   !!     All the conductivities/resistivities will be      !!
   !!                 Computed here                         !!
   !!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-!!
-
-  !!-------------------------------------------------------!!
-  !! Take density magnetic field in all directions and     !!
-  !!   abundances of all molecules for the specific gp     !!
-  abund_magres(:) = 0. ; nmol_magres(:) = 0. ; cyclo_freq(:) = 0.
-  sigma_indivS(:) = 0. ; coll_times(:) = 0. ; species_masses(:) = 0.
                                                            !!
   rho_magres = dens                                        !!
                                                            !!
